@@ -25,6 +25,7 @@
             pkgs.gopls
             pkgs.reflex
             pkgs.postgresql_16
+            pkgs.vscode-langservers-extracted
           ];
         };
       }

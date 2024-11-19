@@ -1,0 +1,26 @@
+{{ define "title"}} Home {{ end }}
+
+{{define "main"}}
+
+    {{if .Snippets}}
+        <table>
+            <tr>
+                <th>Title</th>
+                <th>created</th>
+                <th>ID</th>
+            </tr>
+            {{range .Snippets}}
+            <tr>
+                <td><a href="/snippet/view/{{.ID}}">{{.Title}}</a></td>
+                <td>{{.Created}}</td>
+                <td>#{{ .ID }}</td>
+            </tr>
+            {{end}}
+        </table>
+
+    {{else}}
+        <h2>Latest Snippets </h2>
+        <p> there's nothign to see here yet! </p>
+    {{end}}
+
+{{end}}

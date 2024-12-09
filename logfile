@@ -121,3 +121,13 @@
 2024-11-15 11:02:47.711 EST [29658] STATEMENT:  select interval concat_ws(' ', 3, 'days')::interval
 2024-11-16 10:52:15.163 EST [18491] LOG:  checkpoint starting: time
 2024-11-16 10:52:15.574 EST [18491] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.406 s, sync=0.002 s, total=0.414 s; sync files=5, longest=0.001 s, average=0.001 s; distance=4 kB, estimate=1517 kB; lsn=0/1950FF0, redo lsn=0/1950FB8
+2024-11-19 13:04:30.040 EST [18491] LOG:  checkpoint starting: time
+2024-11-19 13:04:30.454 EST [18491] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.407 s, sync=0.002 s, total=0.416 s; sync files=5, longest=0.001 s, average=0.001 s; distance=4 kB, estimate=1366 kB; lsn=0/1952040, redo lsn=0/1951FF0
+2024-11-19 16:02:28.521 EST [26075] FATAL:  database "sasacocic" does not exist
+2024-11-19 19:48:29.815 EST [18491] LOG:  checkpoint starting: time
+2024-11-19 19:48:30.223 EST [18491] LOG:  checkpoint complete: wrote 5 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.405 s, sync=0.002 s, total=0.409 s; sync files=5, longest=0.001 s, average=0.001 s; distance=4 kB, estimate=1230 kB; lsn=0/1953108, redo lsn=0/19530D0
+2024-12-08 10:06:54.183 EST [65631] FATAL:  lock file "postmaster.pid" already exists
+2024-12-08 10:06:54.183 EST [65631] HINT:  Is another postmaster (PID 18490) running in data directory "/Users/sasacocic/development/tinkering/go_stuff/snippetbox/databaseCluster"?
+2024-12-08 11:45:22.149 EST [65656] ERROR:  function unnest(integer[], text[]) does not exist at character 8
+2024-12-08 11:45:22.149 EST [65656] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
+2024-12-08 11:45:22.149 EST [65656] STATEMENT:  select unnest(ARRAY[1,2,3], ARRAY['one','two','three']);

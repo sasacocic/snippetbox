@@ -3,10 +3,10 @@ package main
 import (
 	"database/sql"
 	"flag"
+	"html/template"
 	"log/slog"
 	"net/http"
 	"os"
-	"text/template"
 
 	_ "github.com/jackc/pgx/v5/stdlib"
 	"github.com/sasacocic/snippetbox/internal/models"
@@ -19,7 +19,6 @@ type application struct {
 }
 
 func main() {
-
 	addr := flag.String("addr", ":4000", "HTTP network address")
 	dsn := flag.String("dsn", "postgresql://sasacocic@localhost:5432/snippetbox", "postgresql connection string")
 	flag.Parse()

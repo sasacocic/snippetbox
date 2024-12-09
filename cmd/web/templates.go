@@ -1,10 +1,9 @@
 package main
 
 import (
-	"path/filepath"
-	"text/template"
-
 	"github.com/sasacocic/snippetbox/internal/models"
+	"html/template"
+	"path/filepath"
 )
 
 type templateData struct {

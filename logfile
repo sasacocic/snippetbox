@@ -131,3 +131,16 @@
 2024-12-08 11:45:22.149 EST [65656] ERROR:  function unnest(integer[], text[]) does not exist at character 8
 2024-12-08 11:45:22.149 EST [65656] HINT:  No function matches the given name and argument types. You might need to add explicit type casts.
 2024-12-08 11:45:22.149 EST [65656] STATEMENT:  select unnest(ARRAY[1,2,3], ARRAY['one','two','three']);
+2024-12-09 12:35:49.883 EST [65656] ERROR:  type "blob" does not exist at character 58
+2024-12-09 12:35:49.883 EST [65656] STATEMENT:  create table sessions (
+	token char(43) primary key,
+	data blob not null,
+	expiry timestamptz(6) not null);
+2024-12-09 12:37:42.078 EST [65656] ERROR:  relation "sesions" does not exist
+2024-12-09 12:37:42.078 EST [65656] STATEMENT:  create index sessions_expiry_idx on sesions(expiry);
+2024-12-09 12:38:48.405 EST [18491] LOG:  checkpoint starting: time
+2024-12-09 12:38:51.756 EST [18491] LOG:  checkpoint complete: wrote 34 buffers (0.2%); 0 WAL file(s) added, 0 removed, 0 recycled; write=3.346 s, sync=0.004 s, total=3.352 s; sync files=32, longest=0.001 s, average=0.001 s; distance=151 kB, estimate=1122 kB; lsn=0/1979008, redo lsn=0/1978FD0
+2024-12-09 13:03:48.692 EST [18491] LOG:  checkpoint starting: time
+2024-12-09 13:03:49.304 EST [18491] LOG:  checkpoint complete: wrote 7 buffers (0.0%); 0 WAL file(s) added, 0 removed, 0 recycled; write=0.608 s, sync=0.003 s, total=0.613 s; sync files=7, longest=0.001 s, average=0.001 s; distance=4 kB, estimate=1010 kB; lsn=0/197A290, redo lsn=0/197A258
+2024-12-14 07:56:03.338 EST [65656] ERROR:  syntax error at or near "seleclt" at character 1
+2024-12-14 07:56:03.338 EST [65656] STATEMENT:  seleclt NOW()::DATE;

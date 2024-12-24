@@ -2,9 +2,12 @@ package main
 
 import (
 	"bytes"
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/go-playground/form/v4"
 )
 
 func (app *application) serverError(w http.ResponseWriter, r *http.Request, err error) {
@@ -49,7 +52,43 @@ func (app *application) render(w http.ResponseWriter, r *http.Request, status in
 func (app *application) newTemplateData(r *http.Request) templateData {
 
 	return templateData{
-		CurrentYear: time.Now().Year(),
+		CurrentYear:     time.Now().Year(),
+		Flash:           app.sessionManager.PopString(r.Context(), "flash"),
+		IsAuthenticated: app.isAuthenticated(r),
 	}
 
+}
+
+func (app *application) decodePostForm(r *http.Request, dst any) error {
+
+	err := r.ParseForm()
+	if err != nil {
+		return err
+	}
+
+	err = app.formDecoder.Decode(dst, r.PostForm)
+	if err != nil {
+		var invalidDecoderError *form.InvalidDecoderError
+
+		if errors.As(err, &invalidDecoderError) {
+			panic(err)
+		}
+
+		return err
+	}
+	return nil
+
+}
+
+func (app *application) isAuthenticated(r *http.Request) bool {
+	// fmt.Println(r.Context())
+	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
+
+	fmt.Println(isAuthenticated, "is authed")
+	if !ok {
+		fmt.Println("type assertion failed")
+		return false
+	}
+
+	return isAuthenticated
 }

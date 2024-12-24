@@ -7,6 +7,6 @@
 # go build ./cmd/run && ./run
 
 
-reflex --decoration=none -r '\.go$' -s -- bash -c 'go build ./cmd/web/ && ./web'
+reflex --decoration=none -r '\.go$|\.tmpl$' -s -- bash -c 'go build ./cmd/web/ && ./web'
 
 echo "./run.sh completing"

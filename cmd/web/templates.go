@@ -7,9 +7,12 @@ import (
 )
 
 type templateData struct {
-	CurrentYear int
-	Snippet     models.Snippet
-	Snippets    []models.Snippet
+	CurrentYear     int
+	Snippet         models.Snippet
+	Snippets        []models.Snippet
+	Form            any
+	Flash           string
+	IsAuthenticated bool
 }
 
 func newTemplateCache() (map[string]*template.Template, error) {
@@ -41,7 +44,6 @@ func newTemplateCache() (map[string]*template.Template, error) {
 		}
 
 		cache[name] = ts
-
 	}
 
 	return cache, nil

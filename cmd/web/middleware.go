@@ -1,9 +1,56 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 )
+
+func (app *application) authenticate(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		fmt.Println("authenticate running")
+		// "authenticatedUserID"
+		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
+		if id == 0 {
+			fmt.Printf("issue with id from sessionManager, go %d", id)
+			next.ServeHTTP(w, r)
+			return
+		}
+
+		fmt.Println("checking if user exists in db: %d", id)
+		exists, err := app.users.Exists(id)
+		if err != nil {
+			fmt.Println("user did not exist")
+			app.serverError(w, r, err)
+			return
+		}
+
+		if exists {
+			fmt.Println("user exists and creating new context")
+			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
+			r = r.WithContext(ctx)
+		}
+
+		fmt.Println("new context set")
+		next.ServeHTTP(w, r)
+	})
+}
+
+func (app *application) requireAuthentication(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+
+		fmt.Printf("user id in session %d\n", app.sessionManager.GetInt(r.Context(), "authenticatedUserID"))
+
+		if !app.isAuthenticated(r) {
+			http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+			return
+		}
+
+		w.Header().Add("Cache-Control", "no-store")
+
+		next.ServeHTTP(w, r)
+	})
+}
 
 func commonHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

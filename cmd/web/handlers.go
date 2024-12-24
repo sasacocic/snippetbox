@@ -9,6 +9,7 @@ import (
 	"unicode/utf8"
 
 	"github.com/sasacocic/snippetbox/internal/models"
+	"github.com/sasacocic/snippetbox/internal/validator"
 )
 
 // This is a "handler"
@@ -113,4 +114,121 @@ func (app *application) snippetCreatePost(w http.ResponseWriter, r *http.Request
 	// this never redirects to the right place for me because I've hardcoded a return
 	// id of 420
 	http.Redirect(w, r, fmt.Sprintf("/snippet/view/%d", id), http.StatusSeeOther)
+}
+
+type userLoginForm struct {
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
+type userSignupForm struct {
+	Name                string `form:"name"`
+	Email               string `form:"email"`
+	Password            string `form:"password"`
+	validator.Validator `form:"-"`
+}
+
+// Update the handler so it displays the signup page.
+func (app *application) userSignup(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = userSignupForm{}
+	app.render(w, r, http.StatusOK, "signup.tmpl", data)
+}
+
+func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
+	var form userSignupForm
+
+	err := app.decodePostForm(r, &form)
+
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form.CheckField(validator.NotBlank(form.Name), "name", "This field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Email), "email", "this field cannot be blank")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "this field must match the regex")
+	form.CheckField(validator.NotBlank(form.Password), "password", "can't be empty")
+	form.CheckField(validator.MinChars(form.Password, 8), "password", "must be at least 8 characters long")
+	fmt.Println("here3")
+
+	if !form.Valid() {
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "signup.tmpl", data)
+		return
+	}
+
+	err = app.users.Insert(form.Name, form.Email, form.Password)
+	if err != nil {
+		app.serverError(w, r, errors.New("this error is intentionally unhandeled"))
+	}
+
+	app.sessionManager.Put(r.Context(), "flash", "Your signup was successful. Please log in.")
+	http.Redirect(w, r, "/user/login", http.StatusSeeOther)
+}
+func (app *application) userLogin(w http.ResponseWriter, r *http.Request) {
+	data := app.newTemplateData(r)
+	data.Form = userLoginForm{}
+	app.render(w, r, http.StatusOK, "login.tmpl", data)
+}
+func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
+	var form userLoginForm
+
+	err := app.decodePostForm(r, &form)
+	if err != nil {
+		app.clientError(w, http.StatusBadRequest)
+		return
+	}
+
+	form.CheckField(validator.NotBlank(form.Email), "email", "this field cannot be blank")
+	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "this field cannot be blank")
+	form.CheckField(validator.NotBlank(form.Password), "password", "this field cannot be blank")
+
+	if !form.Valid() {
+		fmt.Println("form wasn't valid")
+		data := app.newTemplateData(r)
+		data.Form = form
+		app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
+		return
+	}
+
+	id, err := app.users.Authenticate(form.Email, form.Password)
+	if err != nil {
+
+		fmt.Println("couldnt auth user")
+		app.serverError(w, r, err)
+		return
+
+	}
+
+	err = app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		fmt.Println("couldnt renew token")
+		app.serverError(w, r, err)
+		return
+	}
+
+	fmt.Println("users authed succesffully")
+
+	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
+
+	http.Redirect(w, r, "/snippet/create", http.StatusSeeOther)
+}
+
+func (app *application) userLogoutPost(w http.ResponseWriter, r *http.Request) {
+
+	err := app.sessionManager.RenewToken(r.Context())
+	if err != nil {
+		app.serverError(w, r, err)
+		return
+	}
+
+	app.sessionManager.Remove(r.Context(), "authenticatedUserID")
+
+	app.sessionManager.Put(r.Context(), "flash", "You've been logged out succesfully!")
+
+	http.Redirect(w, r, "/", http.StatusSeeOther)
+
 }

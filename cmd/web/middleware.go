@@ -8,30 +8,24 @@ import (
 
 func (app *application) authenticate(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		fmt.Println("authenticate running")
 		// "authenticatedUserID"
 		id := app.sessionManager.GetInt(r.Context(), "authenticatedUserID")
 		if id == 0 {
-			fmt.Printf("issue with id from sessionManager, go %d", id)
 			next.ServeHTTP(w, r)
 			return
 		}
 
-		fmt.Println("checking if user exists in db: %d", id)
 		exists, err := app.users.Exists(id)
 		if err != nil {
-			fmt.Println("user did not exist")
 			app.serverError(w, r, err)
 			return
 		}
 
 		if exists {
-			fmt.Println("user exists and creating new context")
 			ctx := context.WithValue(r.Context(), isAuthenticatedContextKey, true)
 			r = r.WithContext(ctx)
 		}
 
-		fmt.Println("new context set")
 		next.ServeHTTP(w, r)
 	})
 }

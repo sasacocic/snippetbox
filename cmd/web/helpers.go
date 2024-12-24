@@ -81,12 +81,9 @@ func (app *application) decodePostForm(r *http.Request, dst any) error {
 }
 
 func (app *application) isAuthenticated(r *http.Request) bool {
-	// fmt.Println(r.Context())
 	isAuthenticated, ok := r.Context().Value(isAuthenticatedContextKey).(bool)
 
-	fmt.Println(isAuthenticated, "is authed")
 	if !ok {
-		fmt.Println("type assertion failed")
 		return false
 	}
 

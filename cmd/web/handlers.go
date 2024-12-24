@@ -151,7 +151,6 @@ func (app *application) userSignupPost(w http.ResponseWriter, r *http.Request) {
 	form.CheckField(validator.Matches(form.Email, validator.EmailRX), "email", "this field must match the regex")
 	form.CheckField(validator.NotBlank(form.Password), "password", "can't be empty")
 	form.CheckField(validator.MinChars(form.Password, 8), "password", "must be at least 8 characters long")
-	fmt.Println("here3")
 
 	if !form.Valid() {
 		data := app.newTemplateData(r)
@@ -187,7 +186,6 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 	form.CheckField(validator.NotBlank(form.Password), "password", "this field cannot be blank")
 
 	if !form.Valid() {
-		fmt.Println("form wasn't valid")
 		data := app.newTemplateData(r)
 		data.Form = form
 		app.render(w, r, http.StatusUnprocessableEntity, "login.tmpl", data)
@@ -196,8 +194,6 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	id, err := app.users.Authenticate(form.Email, form.Password)
 	if err != nil {
-
-		fmt.Println("couldnt auth user")
 		app.serverError(w, r, err)
 		return
 
@@ -205,12 +201,9 @@ func (app *application) userLoginPost(w http.ResponseWriter, r *http.Request) {
 
 	err = app.sessionManager.RenewToken(r.Context())
 	if err != nil {
-		fmt.Println("couldnt renew token")
 		app.serverError(w, r, err)
 		return
 	}
-
-	fmt.Println("users authed succesffully")
 
 	app.sessionManager.Put(r.Context(), "authenticatedUserID", id)
 

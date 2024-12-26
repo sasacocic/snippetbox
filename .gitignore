@@ -3,3 +3,5 @@
 databaseCluster
 run
 tls
+logfile
+web

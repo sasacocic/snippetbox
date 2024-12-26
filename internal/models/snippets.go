@@ -24,18 +24,17 @@ func (m *SnippetModel) Insert(title string, content string, expires int) (int, e
 	// but it will evaluate a function
 
 	stmt := `INSERT INTO snippets(title, content, created, expires)
-    VALUES($1, $2, CURRENT_TIMESTAMP, date_add(CURRENT_TIMESTAMP, concat_ws(' ', $3::int, 'days')::interval ));`
+    VALUES($1, $2, CURRENT_TIMESTAMP, date_add(CURRENT_TIMESTAMP, concat_ws(' ', $3::int, 'days')::interval )) returning id;`
 
-	_, err := m.DB.Exec(stmt, title, content, expires)
+	var id int
+
+	// error is deffered until Scan is actually called
+	returned := m.DB.QueryRow(stmt, title, content, expires)
+
+	err := returned.Scan(&id)
 	if err != nil {
 		return 0, err
 	}
-
-	id := float64(420) // postgresql driver doesn't support LastInsertId
-	// id, err := result.LastInsertId()
-	//if err != nil {
-	//	return 0, err
-	//}
 
 	// the ID returned has the type int64, so we convert it to an int type
 	// before returning.

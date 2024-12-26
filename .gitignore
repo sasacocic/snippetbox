@@ -5,3 +5,4 @@ run
 tls
 logfile
 web
+.s.PGSQL.5432.lock
